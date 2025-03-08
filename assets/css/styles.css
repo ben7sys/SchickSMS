@@ -1,0 +1,242 @@
+/**
+ * SchickSMS Hauptstilsheet
+ */
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+    --light-color: #ecf0f1;
+    --dark-color: #34495e;
+    --body-bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --border-color: #dee2e6;
+}
+
+/* Allgemeine Stile */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Header und Navigation */
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* Karten */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+/* Formulare */
+.form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+/* Tabellen */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Tabs */
+.nav-tabs .nav-link {
+    color: var(--text-color);
+}
+
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 0.5rem;
+}
+
+/* SMS-Zähler */
+.sms-counter {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-align: right;
+    margin-top: 0.25rem;
+}
+
+/* Spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.2em;
+}
+
+/* Login-Seite */
+.login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-logo i {
+    font-size: 3rem;
+    color: var(--primary-color);
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+    .card-header, .card-body, .card-footer {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        margin-bottom: 0;
+    }
+}
+
+/* Hilfsklassen */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Toast-Benachrichtigungen */
+.toast-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1050;
+}
+
+.toast {
+    background-color: var(--card-bg);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltips */
+.tooltip {
+    font-size: 0.875rem;
+}
+
+/* Kontaktliste */
+.contact-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.contact-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.contact-item:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.contact-name {
+    font-weight: 600;
+}
+
+.contact-number {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* SMS-Verlauf */
+.sms-status-sent {
+    color: var(--success-color);
+}
+
+.sms-status-error {
+    color: var(--danger-color);
+}
+
+.sms-status-pending {
+    color: var(--warning-color);
+}
+
+/* System-Status */
+.system-status-card {
+    height: 100%;
+}
+
+.status-indicator {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.status-active {
+    background-color: var(--success-color);
+}
+
+.status-inactive {
+    background-color: var(--danger-color);
+}
+
+.status-warning {
+    background-color: var(--warning-color);
+}

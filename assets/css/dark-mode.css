@@ -1,0 +1,249 @@
+/**
+ * SchickSMS Dark Mode Stilsheet
+ */
+
+:root {
+    --primary-color: #375a7f;
+    --secondary-color: #3498db;
+    --success-color: #00bc8c;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+    --light-color: #adb5bd;
+    --dark-color: #303030;
+    --body-bg: #222222;
+    --card-bg: #303030;
+    --text-color: #fff;
+    --border-color: #444444;
+}
+
+body.dark-mode {
+    background-color: var(--body-bg);
+    color: var(--text-color);
+}
+
+/* Navbar */
+.dark-mode .navbar {
+    background-color: var(--dark-color) !important;
+}
+
+/* Karten */
+.dark-mode .card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .card-header {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom-color: var(--border-color);
+}
+
+.dark-mode .card-footer {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-top-color: var(--border-color);
+}
+
+/* Formulare */
+.dark-mode .form-control,
+.dark-mode .form-select {
+    background-color: #444444;
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.dark-mode .form-control:focus,
+.dark-mode .form-select:focus {
+    background-color: #444444;
+    color: var(--text-color);
+}
+
+.dark-mode .form-control::placeholder {
+    color: #adb5bd;
+}
+
+.dark-mode .input-group-text {
+    background-color: #444444;
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+/* Tabellen */
+.dark-mode .table {
+    color: var(--text-color);
+}
+
+.dark-mode .table th {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .table td,
+.dark-mode .table th {
+    border-color: var(--border-color);
+}
+
+.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+}
+
+/* Tabs */
+.dark-mode .nav-tabs {
+    border-bottom-color: var(--border-color);
+}
+
+.dark-mode .nav-tabs .nav-link {
+    color: var(--light-color);
+}
+
+.dark-mode .nav-tabs .nav-link.active {
+    color: var(--text-color);
+    background-color: var(--card-bg);
+    border-color: var(--border-color) var(--border-color) var(--card-bg);
+}
+
+.dark-mode .nav-tabs .nav-link:hover:not(.active) {
+    border-color: #444444 #444444 var(--border-color);
+}
+
+/* Buttons */
+.dark-mode .btn-light {
+    background-color: #444444;
+    border-color: #444444;
+    color: var(--text-color);
+}
+
+.dark-mode .btn-light:hover {
+    background-color: #555555;
+    border-color: #555555;
+    color: var(--text-color);
+}
+
+.dark-mode .btn-outline-secondary {
+    color: var(--light-color);
+    border-color: var(--border-color);
+}
+
+.dark-mode .btn-outline-secondary:hover {
+    background-color: #444444;
+    color: var(--text-color);
+}
+
+/* Alerts */
+.dark-mode .alert-info {
+    background-color: #375a7f;
+    border-color: #375a7f;
+    color: var(--text-color);
+}
+
+.dark-mode .alert-success {
+    background-color: #00bc8c;
+    border-color: #00bc8c;
+    color: var(--text-color);
+}
+
+.dark-mode .alert-warning {
+    background-color: #f39c12;
+    border-color: #f39c12;
+    color: var(--text-color);
+}
+
+.dark-mode .alert-danger {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+    color: var(--text-color);
+}
+
+/* Badges */
+.dark-mode .badge.bg-light {
+    background-color: #444444 !important;
+    color: var(--text-color);
+}
+
+.dark-mode .badge.bg-secondary {
+    background-color: #555555 !important;
+}
+
+/* Modals */
+.dark-mode .modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .modal-header,
+.dark-mode .modal-footer {
+    border-color: var(--border-color);
+}
+
+.dark-mode .close {
+    color: var(--text-color);
+}
+
+/* Toast */
+.dark-mode .toast {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .toast-header {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    border-bottom-color: var(--border-color);
+}
+
+/* Footer */
+.dark-mode .footer {
+    background-color: var(--dark-color) !important;
+}
+
+.dark-mode .text-muted {
+    color: #adb5bd !important;
+}
+
+/* Kontaktliste */
+.dark-mode .contact-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .contact-number {
+    color: #adb5bd;
+}
+
+/* Dropdown */
+.dark-mode .dropdown-menu {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .dropdown-item {
+    color: var(--text-color);
+}
+
+.dark-mode .dropdown-item:hover,
+.dark-mode .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.075);
+    color: var(--text-color);
+}
+
+.dark-mode .dropdown-divider {
+    border-top-color: var(--border-color);
+}
+
+/* Tooltips */
+.dark-mode .tooltip-inner {
+    background-color: var(--dark-color);
+}
+
+.dark-mode .bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--dark-color);
+}
+
+.dark-mode .bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--dark-color);
+}
+
+.dark-mode .bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: var(--dark-color);
+}
+
+.dark-mode .bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: var(--dark-color);
+}

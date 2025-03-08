@@ -1,0 +1,133 @@
+/**
+ * SchickSMS Login-Seite Stilsheet
+ */
+
+body {
+    background-color: var(--body-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+.login-container {
+    max-width: 400px;
+    width: 100%;
+}
+
+.login-card {
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.login-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.login-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-header p {
+    opacity: 0.8;
+    margin-bottom: 0;
+}
+
+.login-body {
+    padding: 2rem 1.5rem;
+}
+
+.login-footer {
+    background-color: rgba(0, 0, 0, 0.03);
+    padding: 1rem 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.login-logo {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.login-logo i {
+    font-size: 4rem;
+    color: white;
+}
+
+.form-floating {
+    margin-bottom: 1rem;
+}
+
+.form-floating:last-of-type {
+    margin-bottom: 1.5rem;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: 600;
+}
+
+.login-error {
+    margin-bottom: 1.5rem;
+}
+
+/* Dark Mode Anpassungen */
+body.dark-mode {
+    background-color: var(--body-bg);
+}
+
+.dark-mode .login-card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .login-header {
+    background-color: var(--dark-color);
+}
+
+.dark-mode .login-footer {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+}
+
+.dark-mode .form-control {
+    background-color: #444444;
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.dark-mode .form-control:focus {
+    background-color: #444444;
+    color: var(--text-color);
+}
+
+.dark-mode .form-floating label {
+    color: #adb5bd;
+}
+
+.dark-mode .form-floating > .form-control:focus ~ label,
+.dark-mode .form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: var(--secondary-color);
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 576px) {
+    .login-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .login-body {
+        padding: 1.5rem 1rem;
+    }
+    
+    .login-footer {
+        padding: 1rem;
+    }
+}
