@@ -91,7 +91,7 @@ function loadStatus() {
     formData.append('csrf_token', csrfToken);
     
     // Fetch-API verwenden
-    fetch('api/status.php', {
+    fetch('app/api/status.php', {
         method: 'POST',
         body: formData
     })

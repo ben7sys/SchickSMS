@@ -125,7 +125,7 @@ function sendSms() {
     formData.append('csrf_token', csrfToken);
     
     // Fetch-API verwenden
-    fetch('api/sms.php', {
+    fetch('app/api/sms.php', {
         method: 'POST',
         body: formData
     })
@@ -225,11 +225,11 @@ function loadSmsHistory(archived = false, page = 1) {
     formData.append('offset', offset);
     formData.append('csrf_token', csrfToken);
     
-    // Fetch-API verwenden
-    fetch('api/sms.php', {
-        method: 'POST',
-        body: formData
-    })
+        // Fetch-API verwenden
+        fetch('app/api/sms.php', {
+            method: 'POST',
+            body: formData
+        })
     .then(response => response.json())
     .then(data => {
         historyLoading.style.display = 'none';
@@ -411,7 +411,7 @@ function archiveSms(id) {
         formData.append('csrf_token', csrfToken);
         
         // Fetch-API verwenden
-        fetch('api/sms.php', {
+        fetch('app/api/sms.php', {
             method: 'POST',
             body: formData
         })
@@ -447,7 +447,7 @@ function unarchiveSms(id) {
         formData.append('csrf_token', csrfToken);
         
         // Fetch-API verwenden
-        fetch('api/sms.php', {
+        fetch('app/api/sms.php', {
             method: 'POST',
             body: formData
         })
@@ -482,11 +482,11 @@ function deleteSms(id) {
         formData.append('id', id);
         formData.append('csrf_token', csrfToken);
         
-        // Fetch-API verwenden
-        fetch('api/sms.php', {
-            method: 'POST',
-            body: formData
-        })
+    // Fetch-API verwenden
+    fetch('app/api/sms.php', {
+        method: 'POST',
+        body: formData
+    })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -522,7 +522,7 @@ function exportSmsHistory() {
     formData.append('csrf_token', csrfToken);
     
     // Fetch-API verwenden
-    fetch('api/sms.php', {
+    fetch('app/api/sms.php', {
         method: 'POST',
         body: formData
     })
@@ -720,7 +720,7 @@ function loadContactsForSelector(callback) {
     formData.append('csrf_token', csrfToken);
     
     // Fetch-API verwenden
-    fetch('api/contacts.php', {
+    fetch('app/api/contacts.php', {
         method: 'POST',
         body: formData
     })

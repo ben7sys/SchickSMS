@@ -51,7 +51,7 @@ function initLoginForm() {
         formData.append('csrf_token', csrfToken);
         
         // Fetch-API verwenden
-        fetch('api/auth.php', {
+        fetch('app/api/auth.php', {
             method: 'POST',
             body: formData
         })
@@ -144,7 +144,7 @@ function initChangePasswordForm() {
         formData.append('csrf_token', csrfToken);
         
         // Fetch-API verwenden
-        fetch('api/auth.php', {
+        fetch('app/api/auth.php', {
             method: 'POST',
             body: formData
         })
@@ -198,7 +198,7 @@ function checkSessionStatus() {
     formData.append('csrf_token', csrfToken);
     
     // Fetch-API verwenden
-    fetch('api/auth.php', {
+    fetch('app/api/auth.php', {
         method: 'POST',
         body: formData
     })
@@ -268,7 +268,7 @@ function logout() {
     formData.append('csrf_token', csrfToken);
     
     // Fetch-API verwenden
-    fetch('api/auth.php', {
+    fetch('app/api/auth.php', {
         method: 'POST',
         body: formData
     })

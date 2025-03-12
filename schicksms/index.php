@@ -328,18 +328,18 @@ include 'app/includes/header.php';
                         <form id="changePasswordForm">
                             <div class="mb-3">
                                 <label for="currentPassword" class="form-label">Aktuelles Passwort</label>
-                                <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                                <input type="password" class="form-control" id="currentPassword" name="currentPassword" autocomplete="current-password" required>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="newPassword" class="form-label">Neues Passwort</label>
-                                <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword" autocomplete="new-password" required>
                                 <div class="form-text">Mindestens 8 Zeichen</div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="confirmPassword" class="form-label">Passwort bestätigen</label>
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
                             </div>
                             
                             <button type="submit" class="btn btn-primary">

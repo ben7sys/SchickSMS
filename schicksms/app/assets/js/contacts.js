@@ -101,7 +101,7 @@ function loadContacts(search = '', page = 1) {
     formData.append('csrf_token', csrfToken);
     
     // Fetch-API verwenden
-    fetch('api/contacts.php', {
+    fetch('app/api/contacts.php', {
         method: 'POST',
         body: formData
     })
@@ -243,7 +243,7 @@ function saveContact() {
     saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Speichert...';
     
     // Fetch-API verwenden
-    fetch('api/contacts.php', {
+    fetch('app/api/contacts.php', {
         method: 'POST',
         body: formData
     })
@@ -290,7 +290,7 @@ function deleteContact(id) {
         formData.append('csrf_token', csrfToken);
         
         // Fetch-API verwenden
-        fetch('api/contacts.php', {
+        fetch('app/api/contacts.php', {
             method: 'POST',
             body: formData
         })
@@ -354,7 +354,7 @@ function migrateContacts() {
         migrateButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Migriert...';
         
         // Fetch-API verwenden
-        fetch('api/contacts.php', {
+        fetch('app/api/contacts.php', {
             method: 'POST',
             body: formData
         })
