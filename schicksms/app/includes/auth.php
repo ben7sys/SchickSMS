@@ -15,18 +15,19 @@ function initAuth() {
     // Konfiguration laden
     $config = loadConfig();
     
-    // Session-Einstellungen
-    ini_set('session.use_strict_mode', 1);
-    ini_set('session.use_only_cookies', 1);
-    ini_set('session.use_trans_sid', 0);
-    ini_set('session.cookie_httponly', 1);
-    
-    // Session-Lebensdauer setzen
-    ini_set('session.gc_maxlifetime', $config['auth']['session_lifetime']);
-    session_set_cookie_params($config['auth']['session_lifetime']);
-    
-    // Session starten, wenn noch nicht gestartet
+    // Session nur initialisieren, wenn noch nicht gestartet
     if (session_status() === PHP_SESSION_NONE) {
+        // Session-Einstellungen VOR dem Start konfigurieren
+        ini_set('session.use_strict_mode', 1);
+        ini_set('session.use_only_cookies', 1);
+        ini_set('session.use_trans_sid', 0);
+        ini_set('session.cookie_httponly', 1);
+        
+        // Session-Lebensdauer setzen
+        ini_set('session.gc_maxlifetime', $config['auth']['session_lifetime']);
+        session_set_cookie_params($config['auth']['session_lifetime']);
+        
+        // Session starten
         session_start();
     }
     
@@ -108,8 +109,10 @@ function logout() {
         );
     }
     
-    // Session zerstören
-    session_destroy();
+    // Session zerstören, nur wenn eine aktive Session existiert
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
+    }
 }
 
 /**

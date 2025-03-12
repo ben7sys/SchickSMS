@@ -68,7 +68,7 @@ Dieses Dokument enthält Informationen zur Behebung häufiger Probleme mit Schic
 
 3. Testen Sie den SMS-Versand direkt über die Kommandozeile:
    ```bash
-   echo "Test message" | sudo gammu-smsd-inject TEXT +491234567890
+   echo "Test message" | gammu-smsd-inject TEXT +491234567890
    ```
 
 4. Überprüfen Sie die Berechtigungen für das Gammu-Outbox-Verzeichnis:
@@ -77,6 +77,17 @@ Dieses Dokument enthält Informationen zur Behebung häufiger Probleme mit Schic
    sudo chown -R www-data:www-data /var/spool/gammu/
    sudo chmod -R 775 /var/spool/gammu/
    ```
+
+5. Wenn Sie die Fehlermeldung "sudo: a terminal is required to read the password" erhalten:
+   - Führen Sie das mitgelieferte Setup-Skript aus, um die Berechtigungen zu korrigieren:
+     ```bash
+     sudo bash setup-gammu-permissions.sh
+     ```
+   - Dieses Skript fügt den www-data-Benutzer zur dialout-Gruppe hinzu und setzt das setuid-Bit für gammu-smsd-inject, damit es ohne sudo ausgeführt werden kann.
+   - Starten Sie Apache nach der Ausführung des Skripts neu:
+     ```bash
+     sudo systemctl restart apache2
+     ```
 
 ## Debugging aktivieren
 

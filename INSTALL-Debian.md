@@ -13,7 +13,8 @@ Diese Anleitung beschreibt die Installation von SchickSMS auf einem Debian-Syste
 7. [Berechtigungen setzen](#berechtigungen-setzen)
 8. [Dienste starten](#dienste-starten)
 9. [Installation testen](#installation-testen)
-10. [Fehlerbehebung](#fehlerbehebung)
+10. [SchickSMS aktualisieren](#schicksms-aktualisieren)
+11. [Fehlerbehebung](#fehlerbehebung)
 
 ## Voraussetzungen
 
@@ -38,6 +39,8 @@ sudo apt install -y apache2 php php-sqlite3
 
 # Git für das Herunterladen des Repositories
 sudo apt install -y git
+
+rsync installieren
 ```
 
 ## Gammu-Konfiguration
@@ -239,6 +242,13 @@ sudo chown -R www-data:www-data /var/www/html/schicksms
 sudo chmod -R 755 /var/www/html/schicksms
 ```
 
+# Benutzer zur dialout-Gruppe hinzufügen (für Modemzugriff)
+sudo usermod -a -G dialout www-data
+
+# Berechtigungen für gammu-smsd-inject anpassen
+sudo chmod +s /usr/bin/gammu-smsd-inject
+
+
 ## Dienste starten
 
 ```bash
@@ -255,6 +265,29 @@ sudo systemctl enable gammu-smsd
 ## Modem-Erkennung und -Konfiguration
 
 Dieser Schritt wurde in den Abschnitt "Installation testen" integriert.
+
+### Berechtigungen für SMS-Versand einrichten
+
+Um Probleme mit sudo-Berechtigungen beim SMS-Versand zu vermeiden, führen Sie das mitgelieferte Setup-Skript aus:
+
+```bash
+# Skript ausführbar machen
+sudo chmod +x setup-gammu-permissions.sh
+
+# Skript ausführen
+sudo ./setup-gammu-permissions.sh
+```
+
+Dieses Skript führt folgende Aktionen aus:
+1. Fügt den www-data-Benutzer zur dialout-Gruppe hinzu (für Modemzugriff)
+2. Setzt das setuid-Bit für gammu-smsd-inject, damit es ohne sudo ausgeführt werden kann
+3. Überprüft die Berechtigungen für das Modemgerät
+
+Nach der Ausführung des Skripts starten Sie Apache neu, damit die Gruppenänderungen wirksam werden:
+
+```bash
+sudo systemctl restart apache2
+```
 
 ## Installation testen
 
@@ -297,6 +330,23 @@ gammu sendsms TEXT +49123456789 -text "Test SMS"
 ```
 
 Hinweis: Falls Ihr Modem unter einem anderen Pfad als `/dev/ttyUSB0` erkannt wird, passen Sie die Konfigurationsdateien `/etc/gammurc` und `/etc/gammu-smsdrc` entsprechend an.
+
+## SchickSMS aktualisieren
+
+Wenn Sie SchickSMS aktualisieren möchten, führen Sie die folgenden Schritte aus:
+
+```bash
+# Git-Repository aktualisieren
+cd ~/SchickSMS
+git pull
+
+# Alle Dateien außer 'db' und 'config' in das Webverzeichnis kopieren
+sudo rsync -av --exclude='db' --exclude='config' ~/SchickSMS/schicksms/ /var/www/html/schicksms/
+
+# Berechtigungen aktualisieren
+sudo chown -R www-data:www-data /var/www/html/schicksms
+sudo chmod -R 755 /var/www/html/schicksms
+```
 
 ## Fehlerbehebung
 

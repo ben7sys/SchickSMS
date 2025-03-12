@@ -30,8 +30,8 @@ function sendSmsViaCommand($recipient, $message) {
     $escapedMessage = escapeshellarg($message);
     $escapedRecipient = escapeshellarg($recipient);
     
-    // Befehl mit sudo ausführen
-    $command = "echo $escapedMessage | sudo gammu-smsd-inject TEXT $escapedRecipient 2>&1";
+    // Befehl direkt ausführen (ohne sudo)
+    $command = "echo $escapedMessage | gammu-smsd-inject TEXT $escapedRecipient 2>&1";
     $output = [];
     $returnCode = 0;
     
