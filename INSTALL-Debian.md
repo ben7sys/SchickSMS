@@ -140,7 +140,7 @@ connection = at115200
 model = at
 
 [smsd]
-RunOnReceive = /var/www/html/schicksms/scripts/daemon.sh
+RunOnReceive = /var/www/html/schicksms/app/scripts/daemon.sh
 use_locking = 1
 service = files
 logfile = syslog
@@ -210,21 +210,20 @@ sudo mkdir -p /var/www/html/schicksms
 
 ### SchickSMS-Dateien herunterladen und installieren
 
-Klonen Sie das SchickSMS-Repository direkt in das Installationsverzeichnis, um einfache Updates zu ermöglichen:
+Klonen Sie das SchickSMS-Repository und kopieren Sie die Anwendungsdateien in das Installationsverzeichnis:
 
 ```bash
 # Git installieren, falls noch nicht vorhanden
 sudo apt install -y git
 
-# Zum Installationsverzeichnis wechseln
-cd /var/www/html
+# Repository klonen
+sudo git clone https://github.com/ben7sys/SchickSMS.git /tmp/schicksms
 
-# Repository direkt in das Zielverzeichnis klonen
-sudo git clone https://github.com/ben7sys/SchickSMS.git schicksms
+# Installationsverzeichnis erstellen
+sudo mkdir -p /var/www/html/schicksms
 
-# Alternativ, falls das Verzeichnis bereits existiert:
-# sudo git clone https://github.com/ben7sys/SchickSMS.git /tmp/schicksms
-# sudo cp -r /tmp/schicksms/* /var/www/html/schicksms/
+# Nur die Anwendungsdateien in das Webverzeichnis kopieren
+sudo cp -r /tmp/schicksms/app/* /var/www/html/schicksms/
 ```
 
 ### SchickSMS aktualisieren
@@ -232,29 +231,40 @@ sudo git clone https://github.com/ben7sys/SchickSMS.git schicksms
 Um SchickSMS später zu aktualisieren, führen Sie folgende Befehle aus:
 
 ```bash
-# Zum Installationsverzeichnis wechseln
-cd /var/www/html/schicksms
+# Repository erneut klonen oder aktualisieren
+cd /tmp
+sudo rm -rf schicksms  # Falls ein vorheriger Klon existiert
+sudo git clone https://github.com/ben7sys/SchickSMS.git schicksms
 
-# Änderungen vom Repository abrufen
-sudo git pull
+# Backup der Konfiguration und Datenbank erstellen
+sudo cp /var/www/html/schicksms/config/config.php /tmp/config.php.bak
+sudo cp /var/www/html/schicksms/db/schicksms.sqlite /tmp/schicksms.sqlite.bak
+
+# Nur die Anwendungsdateien aktualisieren, ohne Konfiguration und Datenbank zu überschreiben
+sudo cp -r /tmp/schicksms/app/* /var/www/html/schicksms/
+
+# Konfiguration und Datenbank wiederherstellen (falls sie überschrieben wurden)
+sudo cp /tmp/config.php.bak /var/www/html/schicksms/config/config.php
+sudo cp /tmp/schicksms.sqlite.bak /var/www/html/schicksms/db/schicksms.sqlite
 
 # Berechtigungen nach dem Update erneut setzen
 sudo chown -R www-data:www-data /var/www/html/schicksms
 sudo chmod -R 755 /var/www/html/schicksms
 sudo chmod -R 774 /var/www/html/schicksms/logs
 sudo chmod -R 774 /var/www/html/schicksms/db
+sudo chmod 664 /var/www/html/schicksms/db/schicksms.sqlite
 ```
 
 ### Scripts-Verzeichnis erstellen
 
 ```bash
-sudo mkdir -p /var/www/html/schicksms/scripts
+sudo mkdir -p /var/www/html/schicksms/app/scripts
 ```
 
 ### Daemon-Script erstellen
 
 ```bash
-sudo nano /var/www/html/schicksms/scripts/daemon.sh
+sudo nano /var/www/html/schicksms/app/scripts/daemon.sh
 ```
 
 Fügen Sie folgenden Inhalt ein:
@@ -273,7 +283,7 @@ echo "$(date): SMS empfangen" >> /var/log/gammu-received.log
 Machen Sie das Script ausführbar:
 
 ```bash
-sudo chmod +x /var/www/html/schicksms/scripts/daemon.sh
+sudo chmod +x /var/www/html/schicksms/app/scripts/daemon.sh
 ```
 
 ### SchickSMS konfigurieren
