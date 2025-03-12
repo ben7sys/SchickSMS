@@ -122,7 +122,7 @@ connection = at115200
 model = at
 
 [smsd]
-RunOnReceive = ${INSTALL_DIR}/scripts/daemon.sh
+RunOnReceive = ${INSTALL_DIR}/app/scripts/daemon.sh
 use_locking = 1
 service = files
 logfile = syslog
@@ -172,24 +172,84 @@ fi
 # Step 5: SchickSMS Configuration
 info_message "Step 5: Configuring SchickSMS..."
 
+# Get the user's home directory
+HOME_DIR=$(eval echo ~${SUDO_USER})
+
 # Check if SchickSMS is already installed
 if [ ! -d "$INSTALL_DIR" ]; then
     # Create installation directory
     mkdir -p "$INSTALL_DIR" || error_exit "Failed to create installation directory."
     
-    # Copy files from current directory to installation directory
-    cp -r ./* "$INSTALL_DIR/" || error_exit "Failed to copy SchickSMS files to installation directory."
+    # Check if repository is already cloned in home directory
+    if [ ! -d "${HOME_DIR}/schicksms.git" ]; then
+        # Clone repository to user's home directory
+        info_message "Cloning SchickSMS repository to ${HOME_DIR}/schicksms.git"
+        sudo -u ${SUDO_USER} git clone https://github.com/ben7sys/SchickSMS.git "${HOME_DIR}/schicksms.git" || error_exit "Failed to clone SchickSMS repository."
+        log_message "Cloned SchickSMS repository to user's home directory."
+    else
+        info_message "SchickSMS repository already exists in ${HOME_DIR}/schicksms.git"
+    fi
+    
+    # Copy the schicksms folder contents from home directory to installation directory
+    cp -r "${HOME_DIR}/schicksms.git/schicksms/"* "$INSTALL_DIR/" || error_exit "Failed to copy SchickSMS files to installation directory."
     log_message "Copied SchickSMS files to installation directory."
 else
     warning_message "SchickSMS directory already exists. Skipping file copy."
 fi
 
+# Update SchickSMS if requested
+read -p "Update SchickSMS if already installed? (y/n): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]] && [ -d "$INSTALL_DIR" ]; then
+    info_message "Updating SchickSMS..."
+    
+    # Backup existing configuration and database
+    if [ -f "$INSTALL_DIR/config/config.php" ]; then
+        cp "$INSTALL_DIR/config/config.php" "${HOME_DIR}/config.php.bak" || warning_message "Failed to backup config.php."
+        log_message "Backed up config.php to ${HOME_DIR}/config.php.bak."
+    fi
+    
+    if [ -f "$INSTALL_DIR/db/schicksms.sqlite" ]; then
+        cp "$INSTALL_DIR/db/schicksms.sqlite" "${HOME_DIR}/schicksms.sqlite.bak" || warning_message "Failed to backup database."
+        log_message "Backed up database to ${HOME_DIR}/schicksms.sqlite.bak."
+    fi
+    
+    # Update repository in home directory
+    if [ -d "${HOME_DIR}/schicksms.git" ]; then
+        info_message "Updating repository in ${HOME_DIR}/schicksms.git"
+        cd "${HOME_DIR}/schicksms.git"
+        sudo -u ${SUDO_USER} git pull || warning_message "Failed to update repository. Continuing with existing files."
+    else
+        info_message "Cloning repository to ${HOME_DIR}/schicksms.git"
+        sudo -u ${SUDO_USER} git clone https://github.com/ben7sys/SchickSMS.git "${HOME_DIR}/schicksms.git" || error_exit "Failed to clone SchickSMS repository."
+    fi
+    
+    # Copy updated files to installation directory, preserving config and database
+    find "$INSTALL_DIR" -type f -not -path "$INSTALL_DIR/config/config.php" -not -path "$INSTALL_DIR/db/schicksms.sqlite" -delete || warning_message "Failed to clean installation directory."
+    cp -r "${HOME_DIR}/schicksms.git/schicksms/"* "$INSTALL_DIR/" || error_exit "Failed to copy updated SchickSMS files."
+    
+    # Restore configuration and database if they were deleted
+    if [ ! -f "$INSTALL_DIR/config/config.php" ] && [ -f "${HOME_DIR}/config.php.bak" ]; then
+        mkdir -p "$INSTALL_DIR/config"
+        cp "${HOME_DIR}/config.php.bak" "$INSTALL_DIR/config/config.php" || warning_message "Failed to restore config.php."
+        log_message "Restored config.php from backup."
+    fi
+    
+    if [ ! -f "$INSTALL_DIR/db/schicksms.sqlite" ] && [ -f "${HOME_DIR}/schicksms.sqlite.bak" ]; then
+        mkdir -p "$INSTALL_DIR/db"
+        cp "${HOME_DIR}/schicksms.sqlite.bak" "$INSTALL_DIR/db/schicksms.sqlite" || warning_message "Failed to restore database."
+        log_message "Restored database from backup."
+    fi
+    
+    log_message "SchickSMS updated successfully."
+fi
+
 # Create scripts directory if it doesn't exist
-mkdir -p "$INSTALL_DIR/scripts" || warning_message "Failed to create scripts directory."
+mkdir -p "$INSTALL_DIR/app/scripts" || warning_message "Failed to create scripts directory."
 
 # Create daemon.sh script if it doesn't exist
-if [ ! -f "$INSTALL_DIR/scripts/daemon.sh" ]; then
-    cat > "$INSTALL_DIR/scripts/daemon.sh" << 'EOF'
+if [ ! -f "$INSTALL_DIR/app/scripts/daemon.sh" ]; then
+    cat > "$INSTALL_DIR/app/scripts/daemon.sh" << 'EOF'
 #!/bin/bash
 # This script is executed when a new SMS is received
 # It can be customized according to your needs
@@ -200,7 +260,7 @@ echo "$(date): SMS received" >> /var/log/gammu-received.log
 # Process the SMS (example)
 # You can add your custom processing logic here
 EOF
-    chmod +x "$INSTALL_DIR/scripts/daemon.sh" || warning_message "Failed to set executable permission for daemon.sh."
+    chmod +x "$INSTALL_DIR/app/scripts/daemon.sh" || warning_message "Failed to set executable permission for daemon.sh."
     log_message "Created daemon.sh script."
 fi
 
@@ -242,7 +302,7 @@ return [
         $IP_WHITELIST
     ],
     'db_path' => __DIR__ . '/../db/schicksms.sqlite',
-    'log_path' => __DIR__ . '/../logs/app.log',
+    'log_path' => __DIR__ . '/../app/logs/app.log',
 ];
 EOF
 log_message "Created/updated config.php with custom settings."
@@ -271,12 +331,12 @@ fi
 info_message "Step 7: Setting permissions..."
 
 # Create logs directory
-mkdir -p "$INSTALL_DIR/logs" || warning_message "Failed to create logs directory."
+mkdir -p "$INSTALL_DIR/app/logs" || warning_message "Failed to create logs directory."
 
 # Set ownership and permissions
 chown -R www-data:www-data "$INSTALL_DIR" || error_exit "Failed to set ownership for SchickSMS directory."
 chmod -R 755 "$INSTALL_DIR" || error_exit "Failed to set permissions for SchickSMS directory."
-chmod -R 774 "$INSTALL_DIR/logs" || warning_message "Failed to set permissions for logs directory."
+chmod -R 774 "$INSTALL_DIR/app/logs" || warning_message "Failed to set permissions for logs directory."
 chmod -R 774 "$DB_DIR" || warning_message "Failed to set permissions for database directory."
 
 # Set specific permissions for database file

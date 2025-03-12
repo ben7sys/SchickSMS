@@ -6,7 +6,7 @@
  */
 
 // Authentifizierungsfunktionen einbinden
-require_once 'includes/auth.php';
+require_once 'app/includes/auth.php';
 
 // Sitzung beenden
 logout();

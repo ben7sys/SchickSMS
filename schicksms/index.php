@@ -6,11 +6,11 @@
  */
 
 // Authentifizierung erfordern
-require_once 'includes/auth.php';
+require_once 'app/includes/auth.php';
 requireAuth();
 
 // Header einbinden
-include 'includes/header.php';
+include 'app/includes/header.php';
 ?>
 
 <!-- Tabs-Navigation -->
@@ -378,12 +378,12 @@ include 'includes/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Eigene JavaScript-Dateien -->
-<script src="assets/js/sms.js"></script>
-<script src="assets/js/contacts.js"></script>
-<script src="assets/js/status.js"></script>
-<script src="assets/js/auth.js"></script>
+<script src="app/assets/js/sms.js"></script>
+<script src="app/assets/js/contacts.js"></script>
+<script src="app/assets/js/status.js"></script>
+<script src="app/assets/js/auth.js"></script>
 
 <?php
 // Footer einbinden
-include 'includes/footer.php';
+include 'app/includes/footer.php';
 ?>

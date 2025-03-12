@@ -12,8 +12,9 @@ $config = [
         'password_hash' => '$2y$10$YourHashHere', // Ersetzen Sie dies mit einem echten Passwort-Hash (password_hash('IhrPasswort', PASSWORD_BCRYPT))
         'session_lifetime' => 28800, // 8 Stunden in Sekunden
         'ip_whitelist' => [
-            '127.0.0.1',
-            // Fügen Sie hier weitere erlaubte IP-Adressen hinzu
+            '127.0.0.1',                // Einzelne IP-Adresse
+            '192.168.88.0/24',          // CIDR-Notation für ein Subnetz
+            // Fügen Sie hier weitere erlaubte IP-Adressen oder Subnetze hinzu
         ],
         'brute_force_delay' => 2, // Verzögerung in Sekunden nach fehlgeschlagenen Login-Versuchen
     ],

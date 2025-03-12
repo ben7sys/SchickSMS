@@ -140,7 +140,9 @@ connection = at115200
 model = at
 
 [smsd]
-RunOnReceive = /var/www/html/schicksms/app/scripts/daemon.sh
+# RunOnReceive ist optional, da SchickSMS derzeit keine SMS-Empfangsfunktionalität implementiert hat
+# Wenn Sie die Empfangsfunktionalität in Zukunft implementieren möchten, können Sie diese Zeile aktivieren
+# RunOnReceive = /var/www/html/schicksms/app/scripts/daemon.sh
 use_locking = 1
 service = files
 logfile = syslog
@@ -216,14 +218,14 @@ Klonen Sie das SchickSMS-Repository und kopieren Sie die Anwendungsdateien in da
 # Git installieren, falls noch nicht vorhanden
 sudo apt install -y git
 
-# Repository klonen
-sudo git clone https://github.com/ben7sys/SchickSMS.git /tmp/schicksms
+# Repository direkt in das Home-Verzeichnis des Benutzers klonen
+git clone https://github.com/ben7sys/SchickSMS.git ~/SchickSMS
 
 # Installationsverzeichnis erstellen
 sudo mkdir -p /var/www/html/schicksms
 
 # Nur die Anwendungsdateien in das Webverzeichnis kopieren
-sudo cp -r /tmp/schicksms/app/* /var/www/html/schicksms/
+sudo cp -r ~/SchickSMS/schicksms/* /var/www/html/schicksms/
 ```
 
 ### SchickSMS aktualisieren
@@ -232,25 +234,25 @@ Um SchickSMS später zu aktualisieren, führen Sie folgende Befehle aus:
 
 ```bash
 # Repository erneut klonen oder aktualisieren
-cd /tmp
-sudo rm -rf schicksms  # Falls ein vorheriger Klon existiert
-sudo git clone https://github.com/ben7sys/SchickSMS.git schicksms
+cd ~
+rm -rf SchickSMS  # Falls ein vorheriger Klon existiert
+git clone https://github.com/ben7sys/SchickSMS.git SchickSMS
 
 # Backup der Konfiguration und Datenbank erstellen
-sudo cp /var/www/html/schicksms/config/config.php /tmp/config.php.bak
-sudo cp /var/www/html/schicksms/db/schicksms.sqlite /tmp/schicksms.sqlite.bak
+sudo cp /var/www/html/schicksms/config/config.php ~/config.php.bak
+sudo cp /var/www/html/schicksms/db/schicksms.sqlite ~/schicksms.sqlite.bak
 
 # Nur die Anwendungsdateien aktualisieren, ohne Konfiguration und Datenbank zu überschreiben
-sudo cp -r /tmp/schicksms/app/* /var/www/html/schicksms/
+sudo cp -r ~/SchickSMS/schicksms/* /var/www/html/schicksms/
 
 # Konfiguration und Datenbank wiederherstellen (falls sie überschrieben wurden)
-sudo cp /tmp/config.php.bak /var/www/html/schicksms/config/config.php
-sudo cp /tmp/schicksms.sqlite.bak /var/www/html/schicksms/db/schicksms.sqlite
+sudo cp ~/config.php.bak /var/www/html/schicksms/config/config.php
+sudo cp ~/schicksms.sqlite.bak /var/www/html/schicksms/db/schicksms.sqlite
 
 # Berechtigungen nach dem Update erneut setzen
 sudo chown -R www-data:www-data /var/www/html/schicksms
 sudo chmod -R 755 /var/www/html/schicksms
-sudo chmod -R 774 /var/www/html/schicksms/logs
+sudo chmod -R 774 /var/www/html/schicksms/app/logs
 sudo chmod -R 774 /var/www/html/schicksms/db
 sudo chmod 664 /var/www/html/schicksms/db/schicksms.sqlite
 ```
@@ -261,23 +263,22 @@ sudo chmod 664 /var/www/html/schicksms/db/schicksms.sqlite
 sudo mkdir -p /var/www/html/schicksms/app/scripts
 ```
 
-### Daemon-Script erstellen
+### Daemon-Script erstellen (Optional)
+
+**Hinweis:** Das daemon.sh-Script wird für die Grundfunktionalität von SchickSMS nicht benötigt, da die Anwendung derzeit nur SMS-Versand unterstützt und keine Funktionalität zum Empfangen von SMS implementiert hat. Weitere Details finden Sie in der Datei `daemon-functionality-plan.md` im Hauptverzeichnis.
+
+Wenn Sie dennoch ein leeres Script erstellen möchten (für zukünftige Erweiterungen):
 
 ```bash
 sudo nano /var/www/html/schicksms/app/scripts/daemon.sh
 ```
 
-Fügen Sie folgenden Inhalt ein:
+Fügen Sie folgenden minimalen Inhalt ein:
 
 ```bash
 #!/bin/bash
-# Dieses Script wird ausgeführt, wenn eine neue SMS empfangen wird
-
-# Ereignis protokollieren
-echo "$(date): SMS empfangen" >> /var/log/gammu-received.log
-
-# SMS verarbeiten (Beispiel)
-# Hier können Sie Ihre benutzerdefinierte Verarbeitungslogik hinzufügen
+# Dieses Script ist ein Platzhalter für zukünftige SMS-Empfangsfunktionalität
+exit 0
 ```
 
 Machen Sie das Script ausführbar:
@@ -319,7 +320,7 @@ return [
         // Fügen Sie hier weitere erlaubte IP-Adressen hinzu
     ],
     'db_path' => __DIR__ . '/../db/schicksms.sqlite',
-    'log_path' => __DIR__ . '/../logs/app.log',
+'log_path' => __DIR__ . '/../app/logs/app.log',
 ];
 ```
 
@@ -343,7 +344,7 @@ sudo sqlite3 db/schicksms.sqlite < db/schema.sql
 ### Logs-Verzeichnis erstellen
 
 ```bash
-sudo mkdir -p /var/www/html/schicksms/logs
+sudo mkdir -p /var/www/html/schicksms/app/logs
 ```
 
 ## Berechtigungen setzen
@@ -358,7 +359,7 @@ sudo chown -R www-data:www-data /var/www/html/schicksms
 sudo chmod -R 755 /var/www/html/schicksms
 
 # Spezielle Berechtigungen für Logs und Datenbank
-sudo chmod -R 774 /var/www/html/schicksms/logs
+sudo chmod -R 774 /var/www/html/schicksms/app/logs
 sudo chmod -R 774 /var/www/html/schicksms/db
 
 # Datenbankdatei-Berechtigungen
@@ -487,7 +488,7 @@ Wenn Sie Berechtigungsprobleme vermuten, setzen Sie die Berechtigungen erneut:
 ```bash
 sudo chown -R www-data:www-data /var/www/html/schicksms
 sudo chmod -R 755 /var/www/html/schicksms
-sudo chmod -R 774 /var/www/html/schicksms/logs
+sudo chmod -R 774 /var/www/html/schicksms/app/logs
 sudo chmod -R 774 /var/www/html/schicksms/db
 sudo chmod 664 /var/www/html/schicksms/db/schicksms.sqlite
 ```

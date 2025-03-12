@@ -14,7 +14,7 @@ function loadConfig() {
     static $config = null;
     
     if ($config === null) {
-        $config = require __DIR__ . '/../config/config.php';
+        $config = require __DIR__ . '/../../config/config.php';
     }
     
     return $config;
@@ -63,7 +63,7 @@ function getDatabase() {
  * @param PDO $db Die Datenbankverbindung
  */
 function initializeDatabase($db) {
-    $schemaFile = __DIR__ . '/../db/schema.sql';
+    $schemaFile = __DIR__ . '/../../db/schema.sql';
     
     if (file_exists($schemaFile)) {
         $sql = file_get_contents($schemaFile);
@@ -213,7 +213,39 @@ function isIpWhitelisted($ip) {
         return true;
     }
     
-    return in_array($ip, $whitelist);
+    // Exakte IP-Übereinstimmung prüfen
+    if (in_array($ip, $whitelist)) {
+        return true;
+    }
+    
+    // CIDR-Notation prüfen
+    foreach ($whitelist as $whitelistedIp) {
+        if (strpos($whitelistedIp, '/') !== false) {
+            if (ipInCidrRange($ip, $whitelistedIp)) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Prüft, ob eine IP-Adresse in einem CIDR-Bereich liegt
+ * 
+ * @param string $ip Die zu prüfende IP-Adresse
+ * @param string $cidr Der CIDR-Bereich (z.B. 192.168.0.0/24)
+ * @return bool True, wenn die IP-Adresse im CIDR-Bereich liegt, sonst False
+ */
+function ipInCidrRange($ip, $cidr) {
+    list($subnet, $bits) = explode('/', $cidr);
+    
+    $ip = ip2long($ip);
+    $subnet = ip2long($subnet);
+    $mask = -1 << (32 - $bits);
+    $subnet &= $mask;
+    
+    return ($ip & $mask) == $subnet;
 }
 
 /**
