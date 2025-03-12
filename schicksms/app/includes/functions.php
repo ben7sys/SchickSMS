@@ -31,11 +31,46 @@ function getDatabase() {
     if ($db === null) {
         $config = loadConfig();
         $dbPath = $config['database']['path'];
+        $dbDebug = isset($config['database']['debug']) ? $config['database']['debug'] : false;
         
         // Stellen Sie sicher, dass das Datenbankverzeichnis existiert
         $dbDir = dirname($dbPath);
         if (!is_dir($dbDir)) {
             mkdir($dbDir, 0755, true);
+        }
+        
+        // Prüfen, ob die Datenbankdatei existiert und lesbar/schreibbar ist
+        if (file_exists($dbPath)) {
+            if (!is_readable($dbPath)) {
+                $error = "Datenbankdatei ist nicht lesbar: $dbPath";
+                logMessage($error, 'error');
+                if ($dbDebug) {
+                    die($error . " (Berechtigungen: " . substr(sprintf('%o', fileperms($dbPath)), -4) . ")");
+                } else {
+                    die($error);
+                }
+            }
+            
+            if (!is_writable($dbPath)) {
+                $error = "Datenbankdatei ist nicht schreibbar: $dbPath";
+                logMessage($error, 'error');
+                if ($dbDebug) {
+                    die($error . " (Berechtigungen: " . substr(sprintf('%o', fileperms($dbPath)), -4) . ")");
+                } else {
+                    die($error);
+                }
+            }
+        } else {
+            // Prüfen, ob das Verzeichnis schreibbar ist
+            if (!is_writable($dbDir)) {
+                $error = "Datenbankverzeichnis ist nicht schreibbar: $dbDir";
+                logMessage($error, 'error');
+                if ($dbDebug) {
+                    die($error . " (Berechtigungen: " . substr(sprintf('%o', fileperms($dbDir)), -4) . ")");
+                } else {
+                    die($error);
+                }
+            }
         }
         
         // Verbindung zur Datenbank herstellen
@@ -49,8 +84,22 @@ function getDatabase() {
             
             // Datenbank initialisieren, wenn sie neu ist
             initializeDatabase($db);
+            
+            // Testen, ob die Datenbank funktioniert
+            $testQuery = $db->query("SELECT 1");
+            if (!$testQuery) {
+                throw new PDOException("Datenbankverbindung konnte nicht hergestellt werden");
+            }
+            
+            logMessage("Datenbankverbindung erfolgreich hergestellt", 'info');
         } catch (PDOException $e) {
-            die('Datenbankfehler: ' . $e->getMessage());
+            $error = 'Datenbankfehler: ' . $e->getMessage();
+            logMessage($error, 'error');
+            if ($dbDebug) {
+                die($error . " (Pfad: $dbPath)");
+            } else {
+                die($error);
+            }
         }
     }
     
@@ -63,13 +112,26 @@ function getDatabase() {
  * @param PDO $db Die Datenbankverbindung
  */
 function initializeDatabase($db) {
-    $schemaFile = __DIR__ . '/../../db/schema.sql';
+    // Prüfen, ob die Tabellen bereits existieren
+    $tablesExist = false;
+    try {
+        $result = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='contacts'");
+        $tablesExist = ($result && $result->fetch());
+    } catch (PDOException $e) {
+        // Ignorieren und fortfahren
+    }
     
-    if (file_exists($schemaFile)) {
-        $sql = file_get_contents($schemaFile);
-        $db->exec($sql);
-    } else {
-        die('Datenbankschema nicht gefunden: ' . $schemaFile);
+    // Wenn die Tabellen nicht existieren, das Schema importieren
+    if (!$tablesExist) {
+        $schemaFile = __DIR__ . '/../../db/schema.sql';
+        
+        if (file_exists($schemaFile)) {
+            $sql = file_get_contents($schemaFile);
+            $db->exec($sql);
+            logMessage("Datenbankschema wurde initialisiert", 'info');
+        } else {
+            die('Datenbankschema nicht gefunden: ' . $schemaFile);
+        }
     }
 }
 

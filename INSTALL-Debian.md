@@ -1,21 +1,19 @@
 # SchickSMS Installation Guide für Debian
 
-Diese Anleitung beschreibt die Installation von SchickSMS auf einem Debian-System von Grund auf.
+Diese Anleitung beschreibt die Installation von SchickSMS auf einem Debian-System.
 
 ## Inhaltsverzeichnis
 
 1. [Voraussetzungen](#voraussetzungen)
 2. [Systemaktualisierung und Paketinstallation](#systemaktualisierung-und-paketinstallation)
-3. [Benutzer- und Gruppenkonfiguration](#benutzer--und-gruppenkonfiguration)
-4. [Gammu-Konfiguration](#gammu-konfiguration)
-5. [Apache-Webserver-Konfiguration](#apache-webserver-konfiguration)
-6. [SchickSMS-Installation](#schicksms-installation)
-7. [SQLite-Datenbank-Einrichtung](#sqlite-datenbank-einrichtung)
-8. [Berechtigungen setzen](#berechtigungen-setzen)
-9. [Dienste starten](#dienste-starten)
-10. [Modem-Erkennung und -Konfiguration](#modem-erkennung-und--konfiguration)
-11. [Installation testen](#installation-testen)
-12. [Fehlerbehebung](#fehlerbehebung)
+3. [Gammu-Konfiguration](#gammu-konfiguration)
+4. [Apache-Webserver-Konfiguration](#apache-webserver-konfiguration)
+5. [SchickSMS-Installation](#schicksms-installation)
+6. [Datenbank einrichten](#datenbank-einrichten)
+7. [Berechtigungen setzen](#berechtigungen-setzen)
+8. [Dienste starten](#dienste-starten)
+9. [Installation testen](#installation-testen)
+10. [Fehlerbehebung](#fehlerbehebung)
 
 ## Voraussetzungen
 
@@ -36,51 +34,11 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install -y gammu gammu-smsd
 
 # Apache, PHP und erforderliche Erweiterungen installieren
-sudo apt install -y apache2 php php-sqlite3 php-cli php-gd php-curl php-mbstring php-xml php-common php-bcmath
+sudo apt install -y apache2 php php-sqlite3
 
-# Zusätzliche nützliche Tools installieren
-sudo apt install -y sqlite3 screen
+# Git für das Herunterladen des Repositories
+sudo apt install -y git
 ```
-
-## Benutzer- und Gruppenkonfiguration
-
-### Überprüfen und Erstellen der erforderlichen Gruppen
-
-Prüfen Sie zunächst, ob die erforderlichen Gruppen existieren:
-
-```bash
-# Prüfen, ob die dialout-Gruppe existiert
-getent group dialout
-
-# Prüfen, ob die gammu-Gruppe existiert
-getent group gammu
-```
-
-Falls die gammu-Gruppe nicht existiert, erstellen Sie sie:
-
-```bash
-# Gammu-Gruppe erstellen, falls sie nicht existiert
-sudo groupadd gammu
-```
-
-Die dialout-Gruppe sollte standardmäßig auf Debian-Systemen vorhanden sein, da sie für den Zugriff auf serielle Schnittstellen verwendet wird.
-
-### Benutzer zu Gruppen hinzufügen
-
-Fügen Sie Ihren Benutzer und den Webserver-Benutzer zu den erforderlichen Gruppen hinzu:
-
-```bash
-# Aktuellen Benutzer zur dialout-Gruppe hinzufügen (für Zugriff auf serielle Schnittstellen)
-sudo usermod -a -G dialout $USER
-
-# Aktuellen Benutzer zur gammu-Gruppe hinzufügen
-sudo usermod -a -G gammu $USER
-
-# Webserver-Benutzer zur gammu-Gruppe hinzufügen
-sudo usermod -a -G gammu www-data
-```
-
-Hinweis: Die Änderungen werden erst nach einem Neustart oder Abmelden und erneuten Anmelden wirksam.
 
 ## Gammu-Konfiguration
 
@@ -90,21 +48,7 @@ Hinweis: Die Änderungen werden erst nach einem Neustart oder Abmelden und erneu
 # Gammu-Verzeichnisse erstellen
 sudo mkdir -p /var/spool/gammu/{inbox,outbox,sent,error}
 
-# Gammu-Benutzer erstellen, falls er nicht existiert
-if ! id -u gammu &>/dev/null; then
-    sudo useradd -r -M -d /var/spool/gammu -s /usr/sbin/nologin gammu
-    echo "Gammu-Benutzer wurde erstellt."
-fi
-
 # Berechtigungen setzen
-sudo chown -R gammu:gammu /var/spool/gammu
-sudo chmod -R 774 /var/spool/gammu
-```
-
-Hinweis: Falls der Befehl `chown` einen Fehler ausgibt, weil der Benutzer oder die Gruppe gammu nicht existiert, führen Sie die folgenden Befehle aus:
-
-```bash
-# Alternative Berechtigungen, falls gammu-Benutzer nicht existiert
 sudo chown -R www-data:www-data /var/spool/gammu
 sudo chmod -R 774 /var/spool/gammu
 ```
@@ -140,10 +84,6 @@ connection = at115200
 model = at
 
 [smsd]
-# RunOnReceive ist optional, da SchickSMS derzeit keine SMS-Empfangsfunktionalität implementiert hat
-# Wenn Sie die Empfangsfunktionalität in Zukunft implementieren möchten, können Sie diese Zeile aktivieren
-# RunOnReceive = /var/www/html/schicksms/app/scripts/daemon.sh
-use_locking = 1
 service = files
 logfile = syslog
 debuglevel = 255
@@ -194,162 +134,102 @@ sudo a2ensite schicksms
 # Rewrite-Modul aktivieren
 sudo a2enmod rewrite
 
-# Optional: Standard-Apache-Site deaktivieren
-sudo a2dissite 000-default.conf
-
 # Apache neu starten
 sudo systemctl restart apache2
 ```
 
 ## SchickSMS-Installation
 
-### Installationsverzeichnis vorbereiten
-
-```bash
-# Installationsverzeichnis erstellen
-sudo mkdir -p /var/www/html/schicksms
-```
-
 ### SchickSMS-Dateien herunterladen und installieren
 
-Klonen Sie das SchickSMS-Repository und kopieren Sie die Anwendungsdateien in das Installationsverzeichnis:
-
 ```bash
-# Git installieren, falls noch nicht vorhanden
-sudo apt install -y git
-
-# Repository direkt in das Home-Verzeichnis des Benutzers klonen
+# Repository klonen
 git clone https://github.com/ben7sys/SchickSMS.git ~/SchickSMS
 
 # Installationsverzeichnis erstellen
 sudo mkdir -p /var/www/html/schicksms
 
-# Nur die Anwendungsdateien in das Webverzeichnis kopieren
+# Anwendungsdateien in das Webverzeichnis kopieren
 sudo cp -r ~/SchickSMS/schicksms/* /var/www/html/schicksms/
-```
-
-### SchickSMS aktualisieren
-
-Um SchickSMS später zu aktualisieren, führen Sie folgende Befehle aus:
-
-```bash
-# Repository erneut klonen oder aktualisieren
-cd ~
-rm -rf SchickSMS  # Falls ein vorheriger Klon existiert
-git clone https://github.com/ben7sys/SchickSMS.git SchickSMS
-
-# Backup der Konfiguration und Datenbank erstellen
-sudo cp /var/www/html/schicksms/config/config.php ~/config.php.bak
-sudo cp /var/www/html/schicksms/db/schicksms.sqlite ~/schicksms.sqlite.bak
-
-# Nur die Anwendungsdateien aktualisieren, ohne Konfiguration und Datenbank zu überschreiben
-sudo cp -r ~/SchickSMS/schicksms/* /var/www/html/schicksms/
-
-# Konfiguration und Datenbank wiederherstellen (falls sie überschrieben wurden)
-sudo cp ~/config.php.bak /var/www/html/schicksms/config/config.php
-sudo cp ~/schicksms.sqlite.bak /var/www/html/schicksms/db/schicksms.sqlite
-
-# Berechtigungen nach dem Update erneut setzen
-sudo chown -R www-data:www-data /var/www/html/schicksms
-sudo chmod -R 755 /var/www/html/schicksms
-sudo chmod -R 774 /var/www/html/schicksms/app/logs
-sudo chmod -R 774 /var/www/html/schicksms/db
-sudo chmod 664 /var/www/html/schicksms/db/schicksms.sqlite
-```
-
-### Scripts-Verzeichnis erstellen
-
-```bash
-sudo mkdir -p /var/www/html/schicksms/app/scripts
-```
-
-### Daemon-Script erstellen (Optional)
-
-**Hinweis:** Das daemon.sh-Script wird für die Grundfunktionalität von SchickSMS nicht benötigt, da die Anwendung derzeit nur SMS-Versand unterstützt und keine Funktionalität zum Empfangen von SMS implementiert hat. Weitere Details finden Sie in der Datei `daemon-functionality-plan.md` im Hauptverzeichnis.
-
-Wenn Sie dennoch ein leeres Script erstellen möchten (für zukünftige Erweiterungen):
-
-```bash
-sudo nano /var/www/html/schicksms/app/scripts/daemon.sh
-```
-
-Fügen Sie folgenden minimalen Inhalt ein:
-
-```bash
-#!/bin/bash
-# Dieses Script ist ein Platzhalter für zukünftige SMS-Empfangsfunktionalität
-exit 0
-```
-
-Machen Sie das Script ausführbar:
-
-```bash
-sudo chmod +x /var/www/html/schicksms/app/scripts/daemon.sh
 ```
 
 ### SchickSMS konfigurieren
 
-Erstellen Sie das Konfigurationsverzeichnis:
+#### Passwort-Hash generieren
 
-```bash
-sudo mkdir -p /var/www/html/schicksms/config
-```
-
-Generieren Sie einen Passwort-Hash für den Admin-Benutzer:
+Generieren Sie einen Passwort-Hash für den Login:
 
 ```bash
 # Ersetzen Sie "IhrPasswort" durch Ihr gewünschtes Passwort
-PASSWORT_HASH=$(php -r 'echo password_hash("IhrPasswort", PASSWORD_BCRYPT), "\n";')
-echo $PASSWORT_HASH
+php -r 'echo "Ihr Passwort-Hash: " . password_hash("IhrPasswort", PASSWORD_BCRYPT) . "\n";'
 ```
 
-Erstellen Sie die Konfigurationsdatei:
+Beispiel:
+```
+Ihr Passwort-Hash: $2y$10$abcdefghijklmnopqrstuOSomeRandomHashString
+```
+
+#### Konfigurationsdatei anpassen
+
+Bearbeiten Sie die Konfigurationsdatei:
 
 ```bash
 sudo nano /var/www/html/schicksms/config/config.php
 ```
 
-Fügen Sie folgenden Inhalt ein:
+Aktualisieren Sie die folgenden Einstellungen:
 
-```php
-<?php
-return [
-    'password_hash' => '$2y$10$YourHashHere', // Ersetzen Sie dies mit dem generierten Hash
-    'ip_whitelist' => [
-        '127.0.0.1',
-        // Fügen Sie hier weitere erlaubte IP-Adressen hinzu
-    ],
-    'db_path' => __DIR__ . '/../db/schicksms.sqlite',
-'log_path' => __DIR__ . '/../app/logs/app.log',
-];
-```
+1. Ersetzen Sie `'$2y$10$YourHashHere'` durch Ihren generierten Passwort-Hash:
+   ```php
+   'password_hash' => '$2y$10$abcdefghijklmnopqrstuOSomeRandomHashString', // Ihr generierter Hash
+   ```
 
-Ersetzen Sie `'$2y$10$YourHashHere'` durch den generierten Passwort-Hash.
+2. Passen Sie die IP-Whitelist an Ihre Bedürfnisse an:
+   ```php
+   'ip_whitelist' => [
+       '127.0.0.1',                // Localhost
+       '192.168.1.0/24',           // Lokales Netzwerk (anpassen)
+   ],
+   ```
 
-## SQLite-Datenbank-Einrichtung
+3. Stellen Sie sicher, dass die Gammu-Pfade korrekt sind:
+   ```php
+   'gammu' => [
+       'outbox_path' => '/var/spool/gammu/outbox/',
+       'sent_path' => '/var/spool/gammu/sent/',
+       'error_path' => '/var/spool/gammu/error/',
+       'default_sender' => 'SchickSMS',
+       'max_sms_length' => 160,
+   ],
+   ```
 
-### Datenbankverzeichnis erstellen
+## Datenbank einrichten
+
+SchickSMS verwendet eine SQLite-Datenbank zur Speicherung von Kontakten und SMS-Verlauf. Führen Sie die folgenden Schritte aus, um die Datenbank zu initialisieren:
 
 ```bash
-sudo mkdir -p /var/www/html/schicksms/db
-```
-
-### Datenbankschema importieren
-
-```bash
+# Datenbankverzeichnis vorbereiten
 cd /var/www/html/schicksms
+sudo mkdir -p db
+sudo chown www-data:www-data db
+sudo chmod 755 db
+
+# Datenbankschema importieren
 sudo sqlite3 db/schicksms.sqlite < db/schema.sql
+sudo chown www-data:www-data db/schicksms.sqlite
+sudo chmod 664 db/schicksms.sqlite
 ```
 
-### Logs-Verzeichnis erstellen
+Sie können die erfolgreiche Erstellung der Datenbank überprüfen mit:
 
 ```bash
-sudo mkdir -p /var/www/html/schicksms/app/logs
+# Tabellen in der Datenbank anzeigen
+sqlite3 /var/www/html/schicksms/db/schicksms.sqlite ".tables"
 ```
+
+Die Ausgabe sollte die Tabellen `contacts` und `sms_history` anzeigen.
 
 ## Berechtigungen setzen
-
-Setzen Sie die richtigen Berechtigungen für die SchickSMS-Dateien und -Verzeichnisse:
 
 ```bash
 # Eigentümerschaft setzen
@@ -357,18 +237,9 @@ sudo chown -R www-data:www-data /var/www/html/schicksms
 
 # Standardberechtigungen setzen
 sudo chmod -R 755 /var/www/html/schicksms
-
-# Spezielle Berechtigungen für Logs und Datenbank
-sudo chmod -R 774 /var/www/html/schicksms/app/logs
-sudo chmod -R 774 /var/www/html/schicksms/db
-
-# Datenbankdatei-Berechtigungen
-sudo chmod 664 /var/www/html/schicksms/db/schicksms.sqlite
 ```
 
 ## Dienste starten
-
-Starten Sie die erforderlichen Dienste und aktivieren Sie sie für den Autostart:
 
 ```bash
 # Apache neu starten
@@ -383,57 +254,11 @@ sudo systemctl enable gammu-smsd
 
 ## Modem-Erkennung und -Konfiguration
 
-### Modem erkennen
-
-Schließen Sie Ihr GSM-Modem an und überprüfen Sie, ob es erkannt wird:
-
-```bash
-# USB-Geräte auflisten
-lsusb
-
-# Kernel-Logs nach Modem durchsuchen
-dmesg | grep -i modem
-
-# Serielle Geräte prüfen
-ls -l /dev/ttyUSB*
-```
-
-### Modem testen
-
-Testen Sie die Kommunikation mit dem Modem:
-
-```bash
-# Mit dem Modem über screen kommunizieren
-sudo screen /dev/ttyUSB0 115200
-```
-
-Nach dem Start im Terminal:
-- Tippen Sie `AT` ein → Das Modem sollte mit `OK` antworten.
-- Beenden Sie mit `CTRL+A`, dann `k` und `y`.
-
-### Gammu-Konfiguration testen
-
-```bash
-# Gammu-Version anzeigen
-gammu --version
-
-# Modem identifizieren
-gammu identify
-```
-
-### Test-SMS senden
-
-```bash
-# Direkt mit Gammu
-gammu sendsms TEXT +49123456789 -text "Test SMS"
-
-# Über den SMS-Daemon
-echo "Test SMS via SMSD" | sudo gammu-smsd-inject TEXT +49123456789
-```
-
-Ersetzen Sie `+49123456789` durch eine gültige Telefonnummer.
+Dieser Schritt wurde in den Abschnitt "Installation testen" integriert.
 
 ## Installation testen
+
+### Webinterface testen
 
 Öffnen Sie einen Webbrowser und navigieren Sie zu:
 
@@ -447,7 +272,31 @@ oder wenn Sie einen Domainnamen konfiguriert haben:
 http://ihre-domain.de
 ```
 
-Melden Sie sich mit dem Passwort an, das Sie in der Konfigurationsdatei festgelegt haben.
+Melden Sie sich mit dem Passwort `schicksms` an.
+
+### Modem testen (optional)
+
+Schließen Sie Ihr GSM-Modem an und überprüfen Sie, ob es erkannt wird:
+
+```bash
+# USB-Geräte auflisten
+lsusb
+
+# Serielle Geräte prüfen
+ls -l /dev/ttyUSB*
+```
+
+Testen Sie die Kommunikation mit dem Modem:
+
+```bash
+# Modem identifizieren
+gammu identify
+
+# Test-SMS senden (ersetzen Sie +49123456789 durch eine gültige Telefonnummer)
+gammu sendsms TEXT +49123456789 -text "Test SMS"
+```
+
+Hinweis: Falls Ihr Modem unter einem anderen Pfad als `/dev/ttyUSB0` erkannt wird, passen Sie die Konfigurationsdateien `/etc/gammurc` und `/etc/gammu-smsdrc` entsprechend an.
 
 ## Fehlerbehebung
 
@@ -471,47 +320,28 @@ sudo tail -f /var/log/apache2/schicksms_error.log
 sudo tail -f /var/log/apache2/error.log
 ```
 
-### Gammu-SMSD-Status prüfen
+### Häufige Probleme
+
+#### Berechtigungsprobleme
 
 ```bash
-# Status des Dienstes anzeigen
-sudo systemctl status gammu-smsd
-
-# Prozesse prüfen
-ps aux | grep gammu-smsd
-```
-
-### Berechtigungsprobleme beheben
-
-Wenn Sie Berechtigungsprobleme vermuten, setzen Sie die Berechtigungen erneut:
-
-```bash
+# Berechtigungen neu setzen
 sudo chown -R www-data:www-data /var/www/html/schicksms
 sudo chmod -R 755 /var/www/html/schicksms
-sudo chmod -R 774 /var/www/html/schicksms/app/logs
-sudo chmod -R 774 /var/www/html/schicksms/db
-sudo chmod 664 /var/www/html/schicksms/db/schicksms.sqlite
 ```
 
-### Modem-Zugriffsprobleme
-
-Wenn der Zugriff auf das Modem Probleme bereitet:
+#### Modem-Zugriffsprobleme
 
 ```bash
-# Prüfen, welche Prozesse das Modem verwenden
-sudo lsof /dev/ttyUSB0
+# Benutzer zur dialout-Gruppe hinzufügen
+sudo usermod -a -G dialout www-data
 
-# Benutzer zu relevanten Gruppen hinzufügen
-sudo usermod -a -G dialout,gammu www-data
-sudo usermod -a -G dialout,gammu $USER
-```
-
-Nach Änderungen an Gruppen ist ein Neustart erforderlich, damit diese wirksam werden:
-
-```bash
-sudo reboot
+# Apache neu starten
+sudo systemctl restart apache2
 ```
 
 ---
 
-Bei weiteren Problemen oder Fragen konsultieren Sie bitte die Dokumentation oder wenden Sie sich an den Support.
+Bei weiteren Problemen konsultieren Sie die Logs:
+- Apache: `/var/log/apache2/schicksms_error.log`
+- Gammu: `sudo journalctl -u gammu-smsd -f`

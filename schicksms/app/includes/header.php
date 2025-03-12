@@ -24,6 +24,7 @@ $csrfToken = generateCsrfToken();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="<?php echo $csrfToken; ?>">
     <title><?php echo htmlspecialchars($config['app']['name']); ?></title>
     
     <!-- Bootstrap 5 CSS -->
@@ -33,9 +34,9 @@ $csrfToken = generateCsrfToken();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="app/assets/css/styles.css">
     <?php if ($darkMode): ?>
-    <link rel="stylesheet" href="assets/css/dark-mode.css">
+    <link rel="stylesheet" href="app/assets/css/dark-mode.css">
     <?php endif; ?>
 </head>
 <body class="<?php echo $darkModeClass; ?>">

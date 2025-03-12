@@ -378,6 +378,7 @@ include 'app/includes/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Eigene JavaScript-Dateien -->
+<script src="app/assets/js/app.js"></script>
 <script src="app/assets/js/sms.js"></script>
 <script src="app/assets/js/contacts.js"></script>
 <script src="app/assets/js/status.js"></script>

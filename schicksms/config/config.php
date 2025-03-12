@@ -9,7 +9,7 @@
 $config = [
     // Authentifizierung
     'auth' => [
-        'password_hash' => '$2y$10$YourHashHere', // Ersetzen Sie dies mit einem echten Passwort-Hash (password_hash('IhrPasswort', PASSWORD_BCRYPT))
+        'password_hash' => '$2y$10$GEwpy8Gu8ufGEE5XwbV0IODXtoiNHx4G8wgI/Hssvlwlf8k/Rln8u', // Ersetzen Sie dies mit einem echten Passwort-Hash (password_hash('schicksms', PASSWORD_BCRYPT))
         'session_lifetime' => 28800, // 8 Stunden in Sekunden
         'ip_whitelist' => [
             '127.0.0.1',                // Einzelne IP-Adresse
@@ -19,9 +19,10 @@ $config = [
         'brute_force_delay' => 2, // Verzögerung in Sekunden nach fehlgeschlagenen Login-Versuchen
     ],
     
-    // Datenbank
+// Datenbank
     'database' => [
         'path' => __DIR__ . '/../db/schicksms.sqlite', // Pfad zur SQLite-Datenbank
+        'debug' => true, // Debug-Modus für Datenbankfehler aktivieren
     ],
     
     // Gammu-Einstellungen
@@ -37,7 +38,7 @@ $config = [
     'app' => [
         'name' => 'SchickSMS',
         'version' => '1.0.0',
-        'debug' => false, // Auf true setzen, um Debug-Informationen anzuzeigen
+        'debug' => true, // Auf true setzen, um Debug-Informationen anzuzeigen
     ],
 ];
 
